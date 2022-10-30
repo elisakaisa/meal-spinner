@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.loader.content.AsyncTaskLoader;
 
 import android.os.Handler;
 import android.util.Log;
@@ -13,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapplication.database.MealDatabase;
-import com.example.myapplication.logic.SpinnerLogic;
+import com.example.myapplication.logic.Wheel;
 import com.example.myapplication.model.Meal;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
@@ -31,11 +30,9 @@ public class FragmentSpinner extends Fragment {
         // Required empty public constructor
     }
 
-    private SpinnerLogic spinnerLogic1, spinnerLogic2, spinnerLogic3;
+    private Wheel wheel1, wheel2, wheel3;
     MaterialButton btnSpin;
-    private boolean isStarted;
     private Handler handler;
-    int i = 0;
     MealDatabase appDb;
 
     private final List<String> proteinList = Arrays.asList("Fish", "Minced meat");
@@ -45,7 +42,7 @@ public class FragmentSpinner extends Fragment {
     /*---------- HOOKS -----------*/
     MaterialTextView tvProtein, tvCarbs, tvGreens;
 
-    public static FragmentSpinner newInstance(String param1, String param2) {
+    public static FragmentSpinner newInstance() {
         return new FragmentSpinner();
     }
 
@@ -79,28 +76,28 @@ public class FragmentSpinner extends Fragment {
     }
 
     private void spin1() {
-        spinnerLogic1 = new SpinnerLogic(s -> requireActivity().runOnUiThread(() -> {
+        wheel1 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvProtein.setText(s);
         }), 200, randomLong(150, 400), proteinList);
-        spinnerLogic1.start();
+        wheel1.start();
     }
 
     private void spin2() {
-        spinnerLogic1.stopWheel();
-        spinnerLogic2 = new SpinnerLogic(s -> requireActivity().runOnUiThread(() -> {
+        wheel1.stopWheel();
+        wheel2 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvCarbs.setText(s);
         }), 200, randomLong(150, 400), carbList);
-        spinnerLogic2.start();
+        wheel2.start();
     }
     private void spin3() {
-        spinnerLogic2.stopWheel();
-        spinnerLogic3 = new SpinnerLogic(s -> requireActivity().runOnUiThread(() -> {
+        wheel2.stopWheel();
+        wheel3 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvGreens.setText(s);
         }), 200, randomLong(150, 400), greenList);
-        spinnerLogic3.start();
+        wheel3.start();
     }
     private void stopSpinner() {
-        spinnerLogic3.stopWheel();
+        wheel3.stopWheel();
     }
 
 

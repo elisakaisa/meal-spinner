@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="almost_black">#000c0a</color>
+    <color name="very_dark_cadmium_green">#011815</color>
+    <color name="dark_cadmium_green">#05483f</color>
+    <color name="cadmium_green">#097969</color>
+    <color name="light_cadmium_green">#84bcb4</color>
+    <color name="almost_white">#e6f1f0</color>
 </resources>

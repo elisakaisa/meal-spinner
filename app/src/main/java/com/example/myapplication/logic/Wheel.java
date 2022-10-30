@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class SpinnerLogic extends Thread {
+public class Wheel extends Thread {
     private final List<String> proteinList = Arrays.asList("Fish", "Minced meat");
     private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes");
     private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
@@ -31,7 +31,7 @@ public class SpinnerLogic extends Thread {
     private boolean isStarted;
     private List<String> list;
 
-    public SpinnerLogic(WheelListener wheelListener, long frameDuration, long startIn, List<String> list) {
+    public Wheel(WheelListener wheelListener, long frameDuration, long startIn, List<String> list) {
         this.wheelListener = wheelListener;
         this.frameDuration = frameDuration;
         this.startIn = startIn;
