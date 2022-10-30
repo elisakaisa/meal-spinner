@@ -1,15 +1,20 @@
 package com.example.myapplication;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.loader.content.AsyncTaskLoader;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.myapplication.database.MealDatabase;
 import com.example.myapplication.logic.SpinnerLogic;
+import com.example.myapplication.model.Meal;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
@@ -31,6 +36,7 @@ public class FragmentSpinner extends Fragment {
     private boolean isStarted;
     private Handler handler;
     int i = 0;
+    MealDatabase appDb;
 
     private final List<String> proteinList = Arrays.asList("Fish", "Minced meat");
     private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes");
@@ -63,6 +69,8 @@ public class FragmentSpinner extends Fragment {
 
         /*---------------- START GAME ----------------------*/
         handler = new Handler();
+
+        appDb = MealDatabase.getInstance(requireActivity());
         
         /*-------- LISTENERS --------*/
         btnSpin.setOnClickListener(v -> spinner());
@@ -123,13 +131,26 @@ public class FragmentSpinner extends Fragment {
                             public void run() {
                                 stopSpinner();
                                 requireActivity().runOnUiThread(() -> btnSpin.setEnabled(true));
+                                AsyncTask.execute(() -> {
+                                    Meal meal = new Meal("chicken", "rice", "broccoli");
+                                    //appDb.mealDao().insertMeal(meal);
+                                    accessDB();
+                                });
                             }
                         }, DELAY);
                     }
                 }, DELAY);
             }
         }, DELAY);
+        accessDB();
+    }
 
+    public void accessDB() {
+        AsyncTask.execute(() -> {
+            List<Meal> list = appDb.mealDao().getMealList();
+            Log.i("DAO", "function runs");
+            Log.i("DAO", String.valueOf(list));
+        });
     }
 
 }
