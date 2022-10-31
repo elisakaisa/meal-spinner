@@ -35,6 +35,9 @@ public class FragmentSpinner extends Fragment {
     private Handler handler;
     MealDatabase appDb;
 
+    /*--------- VARIABLES -----------*/
+    private final int DELAY = 2000;
+
     private final List<String> proteinList = Arrays.asList("Fish", "Minced meat");
     private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes");
     private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
@@ -67,37 +70,13 @@ public class FragmentSpinner extends Fragment {
         /*---------------- START GAME ----------------------*/
         handler = new Handler();
 
+        /*---------------- DATABASE ----------------------*/
         appDb = MealDatabase.getInstance(requireActivity());
         
         /*-------- LISTENERS --------*/
         btnSpin.setOnClickListener(v -> spinner());
         
         return view;
-    }
-
-    private void spin1() {
-        wheel1 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
-            tvProtein.setText(s);
-        }), 200, randomLong(150, 400), proteinList);
-        wheel1.start();
-    }
-
-    private void spin2() {
-        wheel1.stopWheel();
-        wheel2 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
-            tvCarbs.setText(s);
-        }), 200, randomLong(150, 400), carbList);
-        wheel2.start();
-    }
-    private void spin3() {
-        wheel2.stopWheel();
-        wheel3 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
-            tvGreens.setText(s);
-        }), 200, randomLong(150, 400), greenList);
-        wheel3.start();
-    }
-    private void stopSpinner() {
-        wheel3.stopWheel();
     }
 
 
@@ -110,24 +89,28 @@ public class FragmentSpinner extends Fragment {
     private void spinner() {
         // TODO: refactor this monstrosity
         btnSpin.setEnabled(false);
-        int DELAY = 2000;
-        spin1();
+        initWheels();
+
+        wheel1.start();
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 // this code will be executed after 2 seconds
-                spin2();
+                wheel1.stopWheel();
+                wheel2.start();
 
                 new Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        spin3();
+                        wheel2.stopWheel();
+                        wheel3.start();
 
                         new Timer().schedule(new TimerTask() {
                             @Override
                             public void run() {
-                                stopSpinner();
+                                wheel3.stopWheel();
                                 requireActivity().runOnUiThread(() -> btnSpin.setEnabled(true));
+
                                 AsyncTask.execute(() -> {
                                     Meal meal = new Meal("chicken", "rice", "broccoli");
                                     //appDb.mealDao().insertMeal(meal);
@@ -148,6 +131,18 @@ public class FragmentSpinner extends Fragment {
             Log.i("DAO", "function runs");
             Log.i("DAO", String.valueOf(list));
         });
+    }
+
+    private void initWheels() {
+        wheel1 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
+            tvProtein.setText(s);
+        }), 200, randomLong(150, 400), proteinList);
+        wheel2 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
+            tvCarbs.setText(s);
+        }), 200, randomLong(150, 400), carbList);
+        wheel3 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
+            tvGreens.setText(s);
+        }), 200, randomLong(150, 400), greenList);
     }
 
 }
