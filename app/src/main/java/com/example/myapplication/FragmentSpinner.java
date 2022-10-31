@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +18,7 @@ import com.example.myapplication.database.MealDatabase;
 import com.example.myapplication.logic.Wheel;
 import com.example.myapplication.model.Meal;
 import com.example.myapplication.view.MealAdapter;
+import com.example.myapplication.viewModel.MealViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
@@ -76,12 +78,22 @@ public class FragmentSpinner extends Fragment {
         /*---------------- START GAME ----------------------*/
         handler = new Handler();
 
+        /*---------------- VIEW MODEL ----------------------*/
+        MealViewModel mealVM = new ViewModelProvider(requireActivity()).get(MealViewModel.class);
+
         /*---------------- DATABASE ----------------------*/
         appDb = MealDatabase.getInstance(requireActivity());
-        accessDB();
+        fillRecyclerView();
         
         /*-------- LISTENERS --------*/
         btnSpin.setOnClickListener(v -> spinner());
+
+        /*mealVM.getMeals().observe(requireActivity(), meals -> {
+            MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) meals);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setAdapter(mealAdapter);
+
+        }); */
         
         return view;
     }
@@ -130,10 +142,9 @@ public class FragmentSpinner extends Fragment {
         }, DELAY);
     }
 
-    public void accessDB() {
+    public void fillRecyclerView() {
         AsyncTask.execute(() -> {
             List<Meal> list = appDb.mealDao().getMealList();
-            Log.i("DAO", String.valueOf(list));
             MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) list);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(mealAdapter);
