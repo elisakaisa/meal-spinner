@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.util.Log;
@@ -14,9 +16,11 @@ import android.view.ViewGroup;
 import com.example.myapplication.database.MealDatabase;
 import com.example.myapplication.logic.Wheel;
 import com.example.myapplication.model.Meal;
+import com.example.myapplication.view.MealAdapter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -31,9 +35,10 @@ public class FragmentSpinner extends Fragment {
     }
 
     private Wheel wheel1, wheel2, wheel3;
-    MaterialButton btnSpin;
+    private MaterialButton btnSpin;
     private Handler handler;
     MealDatabase appDb;
+    private RecyclerView recyclerView;
 
     /*--------- VARIABLES -----------*/
     private final int DELAY = 2000;
@@ -66,12 +71,14 @@ public class FragmentSpinner extends Fragment {
         tvCarbs = view.findViewById(R.id.tv_spinner_carbs);
         tvGreens = view.findViewById(R.id.tv_spinner_greens);
         btnSpin = view.findViewById(R.id.btn_spin);
+        recyclerView = view.findViewById(R.id.recycler_view);
 
         /*---------------- START GAME ----------------------*/
         handler = new Handler();
 
         /*---------------- DATABASE ----------------------*/
         appDb = MealDatabase.getInstance(requireActivity());
+        accessDB();
         
         /*-------- LISTENERS --------*/
         btnSpin.setOnClickListener(v -> spinner());
@@ -114,7 +121,6 @@ public class FragmentSpinner extends Fragment {
                                 AsyncTask.execute(() -> {
                                     Meal meal = new Meal("chicken", "rice", "broccoli");
                                     //appDb.mealDao().insertMeal(meal);
-                                    accessDB();
                                 });
                             }
                         }, DELAY);
@@ -122,14 +128,15 @@ public class FragmentSpinner extends Fragment {
                 }, DELAY);
             }
         }, DELAY);
-        accessDB();
     }
 
     public void accessDB() {
         AsyncTask.execute(() -> {
             List<Meal> list = appDb.mealDao().getMealList();
-            Log.i("DAO", "function runs");
             Log.i("DAO", String.valueOf(list));
+            MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) list);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setAdapter(mealAdapter);
         });
     }
 

@@ -9,6 +9,7 @@
     android:background="@drawable/item_background">
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_item_protein"
         android:text="@string/protein"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,6 +20,7 @@
         android:layout_margin="4dp"/>
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_item_carbs"
         android:text="@string/carbs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -29,6 +31,7 @@
         android:layout_margin="4dp"/>
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_item_greens"
         android:text="@string/greens"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
