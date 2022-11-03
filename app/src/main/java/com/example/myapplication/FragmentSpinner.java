@@ -1,6 +1,5 @@
 package com.example.myapplication;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -9,12 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.myapplication.database.MealDatabase;
 import com.example.myapplication.logic.Wheel;
 import com.example.myapplication.model.Meal;
 import com.example.myapplication.view.MealAdapter;
@@ -25,9 +22,6 @@ import com.google.android.material.textview.MaterialTextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class FragmentSpinner extends Fragment {
@@ -46,8 +40,9 @@ public class FragmentSpinner extends Fragment {
     private final int DELAY = 2000;
     private final int FRAME_DURATION = 100;
     private final int MAX_MEALS = 10;
+    private boolean bonusMeal;
 
-    private final List<String> proteinList = Arrays.asList("Fish", "Minced meat", "Chicken", "Pizza");
+    private final List<String> proteinList = Arrays.asList("Fish", /*"Minced meat", "Chicken", */"Pizza");
     private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes", "Fries");
     private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
 
@@ -117,59 +112,57 @@ public class FragmentSpinner extends Fragment {
     }
 
     private void spinner() {
-        // TODO: refactor this monstrosity
+        bonusMeal = false;
         btnSpin.setEnabled(false);
         initWheels();
 
         wheel1.start();
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                // this code will be executed after DELAY ms
-                wheel1.stopWheel();
+        handler.postDelayed(() -> wheel1.stopWheel(), DELAY);
+        handler.postDelayed(condition, DELAY+500);
 
-                if (String.valueOf(tvProtein.getText()).equals("Pizza")) {
-                    //FIXME: implement logic for pizza and other bonuses
-                    /*requireActivity().runOnUiThread(() -> {
-                        tvCarbs.setText("Pizza");
-                        tvGreens.setText("Pizza");
-                    });
-                    insertMealToDatabase(); */
+        handler.postDelayed(wheel2Start, DELAY+500);
+        handler.postDelayed(wheel2To3, 2*DELAY+500);
+        handler.postDelayed(wheel3ToEnd, 3*DELAY+500);
+        handler.postDelayed(insertMealToDatabase, 3*DELAY+1000+500);
 
-                } else {
-                    wheel2.start();
 
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            wheel2.stopWheel();
-                            wheel3.start();
-
-                            new Timer().schedule(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    wheel3.stopWheel();
-
-                                    insertMealToDatabase();
-                                }
-                            }, DELAY);
-                        }
-                    }, DELAY);
-                }
-            }
-        }, DELAY);
     }
 
-    private void insertMealToDatabase() {
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Meal meal = new Meal(String.valueOf(tvProtein.getText()), String.valueOf(tvCarbs.getText()), String.valueOf(tvGreens.getText()));
-                mealVM.insert(meal);
-                requireActivity().runOnUiThread(() -> btnSpin.setEnabled(true));
-            }
-        }, DELAY/2); // needs to be some delay, otherwise result from last spinner not saved correctly
-    }
+    private final Runnable condition = () -> {
+        //TODO: generalize to all bonus meals
+        if (String.valueOf(tvProtein.getText()).equals("Pizza")) {
+            requireActivity().runOnUiThread(() -> {
+                tvCarbs.setText("Pizza");
+                tvGreens.setText("Pizza");
+            });
+            bonusMeal = true;
+        }
+    };
+
+    private final Runnable wheel2Start = () -> {
+        if (!bonusMeal) {
+            wheel2.start();
+        }
+    };
+
+    private final Runnable wheel2To3 = () -> {
+        if (!bonusMeal) {
+            wheel2.stopWheel();
+            wheel3.start();
+        }
+    };
+
+    private final Runnable wheel3ToEnd = () -> {
+        if (!bonusMeal) {
+            wheel3.stopWheel();
+        }
+    };
+
+    private final Runnable insertMealToDatabase = () -> {
+        Meal meal = new Meal(String.valueOf(tvProtein.getText()), String.valueOf(tvCarbs.getText()), String.valueOf(tvGreens.getText()));
+        mealVM.insert(meal);
+        requireActivity().runOnUiThread(() -> btnSpin.setEnabled(true));
+    };
 
 
     private void initWheels() {
