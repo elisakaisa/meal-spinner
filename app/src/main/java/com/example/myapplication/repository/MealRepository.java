@@ -1,6 +1,7 @@
 package com.example.myapplication.repository;
 
 import android.app.Application;
+import android.app.AsyncNotedAppOp;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
@@ -28,5 +29,9 @@ public class MealRepository {
 
     public void insert(Meal meal) {
         AsyncTask.execute(() -> mMealDao.insertMeal(meal));
+    }
+
+    public void deleteAll() {
+        AsyncTask.execute(() -> mMealDao.deleteAll());
     }
 }

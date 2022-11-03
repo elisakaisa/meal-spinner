@@ -37,17 +37,18 @@ public class FragmentSpinner extends Fragment {
     }
 
     private Wheel wheel1, wheel2, wheel3;
-    private MaterialButton btnSpin;
+    private MaterialButton btnSpin, btnReset;
     private Handler handler;
-    MealDatabase appDb;
     private RecyclerView recyclerView;
     private MealViewModel mealVM;
 
     /*--------- VARIABLES -----------*/
     private final int DELAY = 2000;
+    private final int FRAME_DURATION = 100;
+    private final int MAX_MEALS = 10;
 
-    private final List<String> proteinList = Arrays.asList("Fish", "Minced meat", "Chicken");
-    private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes");
+    private final List<String> proteinList = Arrays.asList("Fish", "Minced meat", "Chicken", "Pizza");
+    private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes", "Fries");
     private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
 
     /*---------- HOOKS -----------*/
@@ -75,34 +76,44 @@ public class FragmentSpinner extends Fragment {
         tvGreens = view.findViewById(R.id.tv_spinner_greens);
         btnSpin = view.findViewById(R.id.btn_spin);
         recyclerView = view.findViewById(R.id.recycler_view);
+        btnReset = view.findViewById(R.id.btn_reset);
 
         /*---------------- START GAME ----------------------*/
         handler = new Handler();
 
         /*---------------- VIEW MODEL ----------------------*/
         mealVM = new ViewModelProvider(requireActivity()).get(MealViewModel.class);
-
-        /*---------------- DATABASE ----------------------*/
-        appDb = MealDatabase.getInstance(requireActivity());
         
         /*-------- LISTENERS --------*/
         btnSpin.setOnClickListener(v -> spinner());
+        btnReset.setOnClickListener(v -> reset());
 
         mealVM.getMeals().observe(requireActivity(), meals -> {
-            MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) meals);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(mealAdapter);
-
+            fillRecyclerView(meals);
+            setButtonEnabled(meals.size());
         });
         
         return view;
     }
 
+    private void reset() {
+        mealVM.deleteAll();
+    }
 
-    public static final Random RANDOM = new Random();
+    private void fillRecyclerView(List<Meal> meals) {
+        MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) meals);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(mealAdapter);
+    }
 
-    private long randomLong(long lower, long upper) {
-        return lower + (long) (RANDOM.nextDouble() * (upper - lower));
+    private void setButtonEnabled(int listLength) {
+        if (listLength < MAX_MEALS) {
+            btnReset.setEnabled(false);
+            btnSpin.setEnabled(true);
+        } else {
+            btnReset.setEnabled(true);
+            btnSpin.setEnabled(false);
+        }
     }
 
     private void spinner() {
@@ -114,49 +125,63 @@ public class FragmentSpinner extends Fragment {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                // this code will be executed after 2 seconds
+                // this code will be executed after DELAY ms
                 wheel1.stopWheel();
-                wheel2.start();
 
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        wheel2.stopWheel();
-                        wheel3.start();
+                if (String.valueOf(tvProtein.getText()).equals("Pizza")) {
+                    //FIXME: implement logic for pizza and other bonuses
+                    /*requireActivity().runOnUiThread(() -> {
+                        tvCarbs.setText("Pizza");
+                        tvGreens.setText("Pizza");
+                    });
+                    insertMealToDatabase(); */
 
-                        new Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                wheel3.stopWheel();
-                                requireActivity().runOnUiThread(() -> btnSpin.setEnabled(true));
+                } else {
+                    wheel2.start();
 
-                                new Timer().schedule(new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        // insert meal in db, needs to be some delay, otherwise result from last spinner not saved correctly
-                                        Meal meal = new Meal(String.valueOf(tvProtein.getText()), String.valueOf(tvCarbs.getText()), String.valueOf(tvGreens.getText()));
-                                        mealVM.insert(meal);
-                                    }
-                                }, DELAY);
-                            }
-                        }, DELAY);
-                    }
-                }, DELAY);
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            wheel2.stopWheel();
+                            wheel3.start();
+
+                            new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    wheel3.stopWheel();
+
+                                    insertMealToDatabase();
+                                }
+                            }, DELAY);
+                        }
+                    }, DELAY);
+                }
             }
         }, DELAY);
+    }
+
+    private void insertMealToDatabase() {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Meal meal = new Meal(String.valueOf(tvProtein.getText()), String.valueOf(tvCarbs.getText()), String.valueOf(tvGreens.getText()));
+                mealVM.insert(meal);
+                requireActivity().runOnUiThread(() -> btnSpin.setEnabled(true));
+            }
+        }, DELAY/2); // needs to be some delay, otherwise result from last spinner not saved correctly
     }
 
 
     private void initWheels() {
         wheel1 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvProtein.setText(s);
-        }), 200, randomLong(150, 400), proteinList);
+        }), FRAME_DURATION, proteinList);
         wheel2 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvCarbs.setText(s);
-        }), 200, randomLong(150, 400), carbList);
+        }), FRAME_DURATION, carbList);
         wheel3 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvGreens.setText(s);
-        }), 200, randomLong(150, 400), greenList);
+        }), FRAME_DURATION, greenList);
     }
 
 }

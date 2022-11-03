@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Wheel extends Thread {
-    private final List<String> proteinList = Arrays.asList("Fish", "Minced meat");
+    /*private final List<String> proteinList = Arrays.asList("Fish", "Minced meat");
     private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes");
     private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
 
@@ -18,7 +18,9 @@ public class Wheel extends Thread {
         String green = greenList.get(rand.nextInt(greenList.size()));
 
         return new Meal(protein, carb, green);
-    }
+    } */
+
+    private Random rand = new Random();
 
     public interface WheelListener {
         void newString(String s);
@@ -31,30 +33,24 @@ public class Wheel extends Thread {
     private boolean isStarted;
     private List<String> list;
 
-    public Wheel(WheelListener wheelListener, long frameDuration, long startIn, List<String> list) {
+    public Wheel(WheelListener wheelListener, long frameDuration, List<String> list) {
         this.wheelListener = wheelListener;
         this.frameDuration = frameDuration;
-        this.startIn = startIn;
         this.list = list;
         currentIndex = 0;
         isStarted = true;
     }
 
     public void next(List<String> list) {
-        currentIndex++;
-
+        /*currentIndex++;
         if (currentIndex == list.size()) {
             currentIndex = 0;
-        }
+        } */
+        currentIndex = rand.nextInt(list.size());
     }
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(startIn);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         while(isStarted) {
             try {
