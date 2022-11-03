@@ -26,9 +26,18 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull MealViewHolder holder, int position) {
-        holder.protein.setText(mMeal.get(position).getProtein());
-        holder.carbs.setText(mMeal.get(position).getCarb());
-        holder.greens.setText(mMeal.get(position).getGreen());
+        String protein = mMeal.get(position).getProtein();
+        String carbs = mMeal.get(position).getCarb();
+
+        if (protein.equals(carbs)) { // case bonus meal
+            holder.protein.setVisibility(View.INVISIBLE);
+            holder.carbs.setText(protein);
+            holder.greens.setVisibility(View.INVISIBLE);
+        } else { // normal case
+            holder.protein.setText(protein);
+            holder.carbs.setText(carbs);
+            holder.greens.setText(mMeal.get(position).getGreen());
+        }
     }
 
     @Override

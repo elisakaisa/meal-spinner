@@ -42,7 +42,8 @@ public class FragmentSpinner extends Fragment {
     private final int MAX_MEALS = 10;
     private boolean bonusMeal;
 
-    private final List<String> proteinList = Arrays.asList("Fish", /*"Minced meat", "Chicken", */"Pizza");
+    private final List<String> proteinList = Arrays.asList("Fish", "Minced meat", "Chicken", "Pizza", "Palt", "Hamburger");
+    private final List<String> bonusList = Arrays.asList("Pizza", "Palt", "Hamburger");
     private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes", "Fries");
     private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
 
@@ -130,14 +131,20 @@ public class FragmentSpinner extends Fragment {
 
     private final Runnable condition = () -> {
         //TODO: generalize to all bonus meals
-        if (String.valueOf(tvProtein.getText()).equals("Pizza")) {
+        String givenItem = String.valueOf(tvProtein.getText());
+        //if (givenItem.equals("Pizza")) {
+        if (containsName(bonusList, givenItem)) {
             requireActivity().runOnUiThread(() -> {
-                tvCarbs.setText("Pizza");
-                tvGreens.setText("Pizza");
+                tvCarbs.setText(givenItem);
+                tvGreens.setText(givenItem);
             });
             bonusMeal = true;
         }
     };
+
+    public boolean containsName(final List<String> list, final String name){
+        return list.stream().anyMatch(o -> o.equals(name));
+    }
 
     private final Runnable wheel2Start = () -> {
         if (!bonusMeal) {
