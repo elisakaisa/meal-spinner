@@ -41,11 +41,12 @@ public class FragmentSpinner extends Fragment {
     private Handler handler;
     MealDatabase appDb;
     private RecyclerView recyclerView;
+    private MealViewModel mealVM;
 
     /*--------- VARIABLES -----------*/
     private final int DELAY = 2000;
 
-    private final List<String> proteinList = Arrays.asList("Fish", "Minced meat");
+    private final List<String> proteinList = Arrays.asList("Fish", "Minced meat", "Chicken");
     private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes");
     private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
 
@@ -79,21 +80,20 @@ public class FragmentSpinner extends Fragment {
         handler = new Handler();
 
         /*---------------- VIEW MODEL ----------------------*/
-        MealViewModel mealVM = new ViewModelProvider(requireActivity()).get(MealViewModel.class);
+        mealVM = new ViewModelProvider(requireActivity()).get(MealViewModel.class);
 
         /*---------------- DATABASE ----------------------*/
         appDb = MealDatabase.getInstance(requireActivity());
-        fillRecyclerView();
         
         /*-------- LISTENERS --------*/
         btnSpin.setOnClickListener(v -> spinner());
 
-        /*mealVM.getMeals().observe(requireActivity(), meals -> {
+        mealVM.getMeals().observe(requireActivity(), meals -> {
             MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) meals);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(mealAdapter);
 
-        }); */
+        });
         
         return view;
     }
@@ -101,7 +101,7 @@ public class FragmentSpinner extends Fragment {
 
     public static final Random RANDOM = new Random();
 
-    public static long randomLong(long lower, long upper) {
+    private long randomLong(long lower, long upper) {
         return lower + (long) (RANDOM.nextDouble() * (upper - lower));
     }
 
@@ -130,10 +130,14 @@ public class FragmentSpinner extends Fragment {
                                 wheel3.stopWheel();
                                 requireActivity().runOnUiThread(() -> btnSpin.setEnabled(true));
 
-                                AsyncTask.execute(() -> {
-                                    Meal meal = new Meal("chicken", "rice", "broccoli");
-                                    //appDb.mealDao().insertMeal(meal);
-                                });
+                                new Timer().schedule(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        // insert meal in db, needs to be some delay, otherwise result from last spinner not saved correctly
+                                        Meal meal = new Meal(String.valueOf(tvProtein.getText()), String.valueOf(tvCarbs.getText()), String.valueOf(tvGreens.getText()));
+                                        mealVM.insert(meal);
+                                    }
+                                }, DELAY);
                             }
                         }, DELAY);
                     }
@@ -142,14 +146,6 @@ public class FragmentSpinner extends Fragment {
         }, DELAY);
     }
 
-    public void fillRecyclerView() {
-        AsyncTask.execute(() -> {
-            List<Meal> list = appDb.mealDao().getMealList();
-            MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) list);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(mealAdapter);
-        });
-    }
 
     private void initWheels() {
         wheel1 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
