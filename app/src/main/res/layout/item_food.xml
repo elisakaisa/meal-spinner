@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_margin="4dp"
-    android:orientation="vertical"
-    android:padding="10dp"
-    android:background="@drawable/item_background">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- TODO: make sure it does not look ugly! -->
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_item_protein"
+        android:id="@+id/tv_item_food"
         android:text="@string/protein"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,22 +17,12 @@
         app:layout_constraintHorizontal_bias="0.1"
         android:layout_margin="4dp"/>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_item_carbs"
-        android:text="@string/carbs"
+    <CheckBox
+        android:id="@+id/cb_decorations"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintHorizontal_bias="0.4"
-        android:layout_margin="4dp"/>
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_item_greens"
-        android:text="@string/greens"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/in_spinner"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,11 +34,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="4dp"
-        android:background="@drawable/item_background"
         app:srcCompat="@drawable/ic_baseline_delete_24"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintHorizontal_bias="0.95" />
+        app:layout_constraintHorizontal_bias="0.9"
+        android:layout_margin="4dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,10 +8,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.myapplication.logic.JackpotMealListener;
 import com.example.myapplication.logic.Wheel;
 import com.example.myapplication.model.Meal;
 import com.example.myapplication.view.MealAdapter;
@@ -24,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class FragmentSpinner extends Fragment {
+public class FragmentSpinner extends Fragment implements JackpotMealListener {
 
     public FragmentSpinner() {
         // Required empty public constructor
@@ -32,7 +34,7 @@ public class FragmentSpinner extends Fragment {
 
     private Wheel wheel1, wheel2, wheel3;
     private MaterialButton btnSpin, btnReset;
-    private Handler handler;
+    private Handler handler, handlerNormal, handlerBonus;
     private RecyclerView recyclerView;
     private MealViewModel mealVM;
 
@@ -40,7 +42,6 @@ public class FragmentSpinner extends Fragment {
     private final int DELAY = 2000;
     private final int FRAME_DURATION = 100;
     private final int MAX_MEALS = 10;
-    private boolean bonusMeal;
 
     private final List<String> proteinList = Arrays.asList("Fish", "Minced meat", "Chicken", "Pizza", "Palt", "Hamburger");
     private final List<String> bonusList = Arrays.asList("Pizza", "Palt", "Hamburger");
@@ -76,13 +77,15 @@ public class FragmentSpinner extends Fragment {
 
         /*---------------- START GAME ----------------------*/
         handler = new Handler();
+        handlerNormal = new Handler();
+        handlerBonus = new Handler();
 
         /*---------------- VIEW MODEL ----------------------*/
         mealVM = new ViewModelProvider(requireActivity()).get(MealViewModel.class);
         
         /*-------- LISTENERS --------*/
         btnSpin.setOnClickListener(v -> spinner());
-        btnReset.setOnClickListener(v -> reset());
+        btnReset.setOnClickListener(v -> mealVM.deleteAll());
 
         mealVM.getMeals().observe(requireActivity(), meals -> {
             fillRecyclerView(meals);
@@ -92,8 +95,12 @@ public class FragmentSpinner extends Fragment {
         return view;
     }
 
-    private void reset() {
-        mealVM.deleteAll();
+    @Override
+    public void onDestroy () {
+        handler.removeCallbacks(null);
+        handlerNormal.removeCallbacks(null);
+        handlerBonus.removeCallbacks(null);
+        super.onDestroy ();
     }
 
     private void fillRecyclerView(List<Meal> meals) {
@@ -113,57 +120,31 @@ public class FragmentSpinner extends Fragment {
     }
 
     private void spinner() {
-        bonusMeal = false;
         btnSpin.setEnabled(false);
         initWheels();
 
         wheel1.start();
         handler.postDelayed(() -> wheel1.stopWheel(), DELAY);
         handler.postDelayed(condition, DELAY+500);
-
-        handler.postDelayed(wheel2Start, DELAY+500);
-        handler.postDelayed(wheel2To3, 2*DELAY+500);
-        handler.postDelayed(wheel3ToEnd, 3*DELAY+500);
-        handler.postDelayed(insertMealToDatabase, 3*DELAY+1000+500);
-
-
     }
 
     private final Runnable condition = () -> {
-        //TODO: generalize to all bonus meals
         String givenItem = String.valueOf(tvProtein.getText());
-        //if (givenItem.equals("Pizza")) {
         if (containsName(bonusList, givenItem)) {
             requireActivity().runOnUiThread(() -> {
                 tvCarbs.setText(givenItem);
                 tvGreens.setText(givenItem);
             });
-            bonusMeal = true;
+            onJackpotMeal(true);
+        } else {
+            onJackpotMeal(false);
         }
     };
 
-    public boolean containsName(final List<String> list, final String name){
+    private boolean containsName(final List<String> list, final String name){
         return list.stream().anyMatch(o -> o.equals(name));
     }
 
-    private final Runnable wheel2Start = () -> {
-        if (!bonusMeal) {
-            wheel2.start();
-        }
-    };
-
-    private final Runnable wheel2To3 = () -> {
-        if (!bonusMeal) {
-            wheel2.stopWheel();
-            wheel3.start();
-        }
-    };
-
-    private final Runnable wheel3ToEnd = () -> {
-        if (!bonusMeal) {
-            wheel3.stopWheel();
-        }
-    };
 
     private final Runnable insertMealToDatabase = () -> {
         Meal meal = new Meal(String.valueOf(tvProtein.getText()), String.valueOf(tvCarbs.getText()), String.valueOf(tvGreens.getText()));
@@ -184,4 +165,19 @@ public class FragmentSpinner extends Fragment {
         }), FRAME_DURATION, greenList);
     }
 
+    @Override
+    public void onJackpotMeal(boolean jackpotMeal) {
+        if (jackpotMeal) {
+            handlerBonus.postDelayed(insertMealToDatabase, 0);
+        } else {
+            handlerNormal.postDelayed(() -> wheel2.start(), 0);
+            handlerNormal.postDelayed(() -> {
+                wheel2.stopWheel();
+                wheel3.start();
+            }, DELAY);
+            handlerNormal.postDelayed(() -> wheel3.stopWheel(), 2*DELAY);
+            handlerNormal.postDelayed(insertMealToDatabase, 2*DELAY + 500);
+        }
+
+    }
 }

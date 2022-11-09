@@ -3,6 +3,7 @@ package com.example.myapplication.view;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.model.Meal;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 
@@ -38,6 +40,10 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
             holder.carbs.setText(carbs);
             holder.greens.setText(mMeal.get(position).getGreen());
         }
+
+        holder.btn_delete.setOnClickListener(view -> {
+
+        });
     }
 
     @Override
@@ -50,12 +56,14 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
     public class MealViewHolder extends RecyclerView.ViewHolder {
 
         public TextView protein, carbs, greens;
+        public ImageButton btn_delete;
 
         public MealViewHolder(@NonNull View itemView) {
             super(itemView);
             protein = itemView.findViewById(R.id.tv_item_protein);
             carbs = itemView.findViewById(R.id.tv_item_carbs);
             greens = itemView.findViewById(R.id.tv_item_greens);
+            btn_delete = itemView.findViewById(R.id.img_btn_delete);
 
             itemView.setTag(this);
 
