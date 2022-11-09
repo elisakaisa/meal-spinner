@@ -3,10 +3,24 @@ package com.example.myapplication;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.myapplication.model.FoodElement;
+import com.example.myapplication.model.Meal;
+import com.example.myapplication.view.FoodAdapter;
+import com.example.myapplication.view.MealAdapter;
+import com.example.myapplication.viewModel.FoodViewModel;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,50 +29,57 @@ import android.view.ViewGroup;
  */
 public class FragmentSettings extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    FoodViewModel foodVM;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    TextInputEditText etJackpotMeals, etProtein, etCarbs, etGreens;
 
     public FragmentSettings() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FragmentSettings.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FragmentSettings newInstance(String param1, String param2) {
-        FragmentSettings fragment = new FragmentSettings();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static FragmentSettings newInstance() {
+        return new FragmentSettings();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        /*---------- HOOKS -----------*/
+        RecyclerView rvJackpotMeals = view.findViewById(R.id.rv_jackpot);
+        RecyclerView rvProtein = view.findViewById(R.id.rv_protein);
+        RecyclerView rvCarbs = view.findViewById(R.id.rv_carbs);
+        RecyclerView rvGreens = view.findViewById(R.id.rv_greens);
+        etJackpotMeals = view.findViewById(R.id.et_jackpot);
+        MaterialButton btnAddJackpot = view.findViewById(R.id.btn_add_jackpot);
+
+        /*---------- VIEW MODEL --------*/
+        foodVM = new ViewModelProvider(requireActivity()).get(FoodViewModel.class);
+
+        /*-------- LISTENERS -------*/
+        foodVM.getJackpotMeals().observe(requireActivity(), jackpotMeals -> {
+            fillRecyclerView(rvJackpotMeals, jackpotMeals);
+        });
+
+        btnAddJackpot.setOnClickListener(v -> {
+            FoodElement newJackpotMeal = new FoodElement(String.valueOf(etJackpotMeals.getText()), true);
+            foodVM.addJackpotMeal(newJackpotMeal);
+        });
+
+        return view;
+    }
+
+    private void fillRecyclerView(RecyclerView rv, List<FoodElement> food) {
+        FoodAdapter foodAdapter = new FoodAdapter((ArrayList<FoodElement>) food);
+        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rv.setAdapter(foodAdapter);
+        foodAdapter.notifyDataSetChanged();
     }
 }

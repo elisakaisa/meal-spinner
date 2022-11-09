@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.example.myapplication.logic.JackpotMealListener;
 import com.example.myapplication.logic.Wheel;
@@ -74,8 +75,9 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
         btnSpin = view.findViewById(R.id.btn_spin);
         recyclerView = view.findViewById(R.id.recycler_view);
         btnReset = view.findViewById(R.id.btn_reset);
+        ImageButton btnSettings = view.findViewById(R.id.img_btn_settings);
 
-        /*---------------- START GAME ----------------------*/
+        /*---------------- HANDLERS ----------------------*/
         handler = new Handler();
         handlerNormal = new Handler();
         handlerBonus = new Handler();
@@ -86,6 +88,7 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
         /*-------- LISTENERS --------*/
         btnSpin.setOnClickListener(v -> spinner());
         btnReset.setOnClickListener(v -> mealVM.deleteAll());
+        btnSettings.setOnClickListener(v -> MainActivity.loadFragment(requireActivity().getSupportFragmentManager(), new FragmentSettings()));
 
         mealVM.getMeals().observe(requireActivity(), meals -> {
             fillRecyclerView(meals);

@@ -7,7 +7,13 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 
+import com.example.myapplication.database.Food;
+
 public class MainActivity extends AppCompatActivity {
+
+    /*------ SERIALIZATION -------*/
+    public static Food foodList;
+    public static final String FOOD_LIST = "foodList.ser";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
