@@ -69,25 +69,25 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_jackpot"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="400dp"
                     android:padding="4dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_protein"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="400dp"
                     android:padding="4dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_carbs"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="400dp"
                     android:padding="4dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_greens"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="400dp"
                     android:padding="4dp"/>
 
             </TableRow>

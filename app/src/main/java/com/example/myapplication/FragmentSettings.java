@@ -22,11 +22,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentSettings#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FragmentSettings extends Fragment {
 
     FoodViewModel foodVM;
@@ -58,7 +53,11 @@ public class FragmentSettings extends Fragment {
         RecyclerView rvCarbs = view.findViewById(R.id.rv_carbs);
         RecyclerView rvGreens = view.findViewById(R.id.rv_greens);
         etJackpotMeals = view.findViewById(R.id.et_jackpot);
+        etProtein = view.findViewById(R.id.et_protein);
+        etCarbs = view.findViewById(R.id.et_carbs);
+        etGreens = view.findViewById(R.id.et_greens);
         MaterialButton btnAddJackpot = view.findViewById(R.id.btn_add_jackpot);
+        MaterialButton btnAddProtein = view.findViewById(R.id.btn_add_protein);
 
         /*---------- VIEW MODEL --------*/
         foodVM = new ViewModelProvider(requireActivity()).get(FoodViewModel.class);
@@ -66,11 +65,32 @@ public class FragmentSettings extends Fragment {
         /*-------- LISTENERS -------*/
         foodVM.getJackpotMeals().observe(requireActivity(), jackpotMeals -> {
             fillRecyclerView(rvJackpotMeals, jackpotMeals);
+            /*FoodAdapter foodAdapter = new FoodAdapter((ArrayList<FoodElement>) jackpotMeals);
+            rvJackpotMeals.setLayoutManager(new LinearLayoutManager(getActivity()));
+            rvJackpotMeals.setAdapter(foodAdapter); */
+        });
+        foodVM.getProteinList().observe(requireActivity(), proteins -> {
+            fillRecyclerView(rvProtein, proteins);
+            /*FoodAdapter foodAdapter = new FoodAdapter((ArrayList<FoodElement>) proteins);
+            rvProtein.setLayoutManager(new LinearLayoutManager(getActivity()));
+            rvProtein.setAdapter(foodAdapter); */
         });
 
         btnAddJackpot.setOnClickListener(v -> {
-            FoodElement newJackpotMeal = new FoodElement(String.valueOf(etJackpotMeals.getText()), true);
-            foodVM.addJackpotMeal(newJackpotMeal);
+            String food = String.valueOf(etJackpotMeals.getText());
+            if (!food.equals("")) {
+                FoodElement newJackpotMeal = new FoodElement(food, true);
+                foodVM.addJackpotMeal(newJackpotMeal);
+                etJackpotMeals.setText("");
+            }
+        });
+        btnAddProtein.setOnClickListener(v -> {
+            String food = String.valueOf(etProtein.getText());
+            if (!food.equals("")) {
+                FoodElement newProtein = new FoodElement(food, true);
+                foodVM.addProtein(newProtein);
+                etProtein.setText("");
+            }
         });
 
         return view;
@@ -80,6 +100,5 @@ public class FragmentSettings extends Fragment {
         FoodAdapter foodAdapter = new FoodAdapter((ArrayList<FoodElement>) food);
         rv.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv.setAdapter(foodAdapter);
-        foodAdapter.notifyDataSetChanged();
     }
 }

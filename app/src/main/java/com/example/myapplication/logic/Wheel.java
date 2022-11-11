@@ -1,5 +1,7 @@
 package com.example.myapplication.logic;
 
+import android.util.Log;
+
 import com.example.myapplication.model.Meal;
 
 import java.util.Arrays;
@@ -32,21 +34,32 @@ public class Wheel extends Thread {
     private long startIn;
     private boolean isStarted;
     private List<String> list;
+    private List<Double> likelihoodList;
 
-    public Wheel(WheelListener wheelListener, long frameDuration, List<String> list) {
+    public Wheel(WheelListener wheelListener, long frameDuration, List<String> list, List<Double> likelihoodList) {
         this.wheelListener = wheelListener;
         this.frameDuration = frameDuration;
         this.list = list;
+        this.likelihoodList = likelihoodList;
         currentIndex = 0;
         isStarted = true;
     }
 
-    public void next(List<String> list) {
-        /*currentIndex++;
-        if (currentIndex == list.size()) {
-            currentIndex = 0;
-        } */
-        currentIndex = rand.nextInt(list.size());
+    public void next(List<String> list, List<Double> likelihoodList) {
+        //currentIndex = rand.nextInt(list.size());
+        double number = rand.nextDouble();
+        Log.i("Wheel", "random number " + number);
+        int index = -1;
+        for (int i = 0; i < list.size()-1; i++) {
+            if (number <= likelihoodList.get(1)) index = 0;
+            else if ((number > likelihoodList.get(i)) && (number <= likelihoodList.get(i+1))) {
+                // number is contained between them
+                index = i;
+            }
+            else if (number > likelihoodList.get(i+1)) index = i+1;
+        }
+        Log.i("Wheel", "index " + index);
+        currentIndex = index;
     }
 
     @Override
@@ -59,7 +72,7 @@ public class Wheel extends Thread {
                 e.printStackTrace();
             }
 
-            next(list);
+            next(list, likelihoodList);
 
             if (wheelListener != null) {
                 wheelListener.newString(list.get(currentIndex));

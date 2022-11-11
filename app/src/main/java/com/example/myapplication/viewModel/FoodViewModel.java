@@ -82,13 +82,13 @@ public class FoodViewModel extends AndroidViewModel {
             FileInputStream fin = getApplication().getApplicationContext().openFileInput(MainActivity.FOOD_LIST);
             ObjectInputStream oin = new ObjectInputStream(fin);
             MainActivity.foodList = (Food) oin.readObject();
-            jackpotMeals.setValue(MainActivity.foodList.getProteinList());
+            proteinList.setValue(MainActivity.foodList.getProteinList());
             oin.close();
 
         } catch (Exception e){
             e.printStackTrace();
             MainActivity.foodList = new Food();
-            jackpotMeals.setValue(MainActivity.foodList.getProteinList());
+            proteinList.setValue(MainActivity.foodList.getProteinList());
         }
     }
 
@@ -124,6 +124,17 @@ public class FoodViewModel extends AndroidViewModel {
 
     public void addJackpotMeal(FoodElement food) {
         MainActivity.foodList.addJackpotMeal(food);
+        writeObjectInFileOutput();
+        loadJackpotMeals();
+    }
+
+    public void addProtein(FoodElement food) {
+        MainActivity.foodList.addProteinList(food);
+        writeObjectInFileOutput();
+        loadProteins();
+    }
+
+    private void writeObjectInFileOutput() {
         try {
             FileOutputStream fos = getApplication().getApplicationContext().openFileOutput(MainActivity.FOOD_LIST, Context.MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -132,7 +143,6 @@ public class FoodViewModel extends AndroidViewModel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        loadJackpotMeals();
     }
 
 }

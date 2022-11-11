@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import com.example.myapplication.database.TestFood;
 import com.example.myapplication.logic.JackpotMealListener;
 import com.example.myapplication.logic.Wheel;
 import com.example.myapplication.model.Meal;
@@ -44,10 +45,7 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
     private final int FRAME_DURATION = 100;
     private final int MAX_MEALS = 10;
 
-    private final List<String> proteinList = Arrays.asList("Fish", "Minced meat", "Chicken", "Pizza", "Palt", "Hamburger");
-    private final List<String> bonusList = Arrays.asList("Pizza", "Palt", "Hamburger");
-    private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes", "Fries");
-    private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
+    private TestFood testFoodVariables;
 
     /*---------- HOOKS -----------*/
     MaterialTextView tvProtein, tvCarbs, tvGreens;
@@ -76,6 +74,8 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
         recyclerView = view.findViewById(R.id.recycler_view);
         btnReset = view.findViewById(R.id.btn_reset);
         ImageButton btnSettings = view.findViewById(R.id.img_btn_settings);
+
+        testFoodVariables = new TestFood();
 
         /*---------------- HANDLERS ----------------------*/
         handler = new Handler();
@@ -133,7 +133,7 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
 
     private final Runnable condition = () -> {
         String givenItem = String.valueOf(tvProtein.getText());
-        if (containsName(bonusList, givenItem)) {
+        if (containsName(testFoodVariables.bonusList, givenItem)) {
             requireActivity().runOnUiThread(() -> {
                 tvCarbs.setText(givenItem);
                 tvGreens.setText(givenItem);
@@ -159,13 +159,13 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
     private void initWheels() {
         wheel1 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvProtein.setText(s);
-        }), FRAME_DURATION, proteinList);
+        }), FRAME_DURATION, testFoodVariables.proteinList, testFoodVariables.proteinLikelihood);
         wheel2 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvCarbs.setText(s);
-        }), FRAME_DURATION, carbList);
+        }), FRAME_DURATION, testFoodVariables.carbList, testFoodVariables.carbLikelihood);
         wheel3 = new Wheel(s -> requireActivity().runOnUiThread(() -> {
             tvGreens.setText(s);
-        }), FRAME_DURATION, greenList);
+        }), FRAME_DURATION, testFoodVariables.greenList, testFoodVariables.greenLikelihood);
     }
 
     @Override
