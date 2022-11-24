@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.example.myapplication.model.Meal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -46,20 +47,32 @@ public class Wheel extends Thread {
     }
 
     public void next(List<String> list, List<Double> likelihoodList) {
-        //currentIndex = rand.nextInt(list.size());
+        ArrayList<Double> cumulativeLikelihood = (ArrayList<Double>) populateCumulativeLikelihood(likelihoodList);
+
         double number = rand.nextDouble();
         Log.i("Wheel", "random number " + number);
         int index = -1;
         for (int i = 0; i < list.size()-1; i++) {
-            if (number <= likelihoodList.get(1)) index = 0;
-            else if ((number > likelihoodList.get(i)) && (number <= likelihoodList.get(i+1))) {
+            if (number <= cumulativeLikelihood.get(1)) index = 0;
+            else if ((number > cumulativeLikelihood.get(i)) && (number <= cumulativeLikelihood.get(i+1))) {
                 // number is contained between them
                 index = i;
             }
-            else if (number > likelihoodList.get(i+1)) index = i+1;
+            else if (number > cumulativeLikelihood.get(i+1)) index = i+1;
         }
         Log.i("Wheel", "index " + index);
         currentIndex = index;
+    }
+
+    private List<Double> populateCumulativeLikelihood(List<Double> likelihoodList) {
+        ArrayList<Double> cumulativeLikelihood = new ArrayList<>();
+        double value = 0;
+        cumulativeLikelihood.add(value);
+        for (int i = 1; i < likelihoodList.size(); i++) {
+            value = value + likelihoodList.get(i);
+            cumulativeLikelihood.add(value);
+        }
+        return cumulativeLikelihood;
     }
 
     @Override
