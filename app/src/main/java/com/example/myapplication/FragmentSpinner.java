@@ -24,7 +24,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -149,9 +148,12 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
     }
 
 
-    private final Runnable insertMealToDatabase = () -> {
+    private final Runnable insertMealToDatabaseAndUpdateLikelihoods = () -> {
         Meal meal = new Meal(String.valueOf(tvProtein.getText()), String.valueOf(tvCarbs.getText()), String.valueOf(tvGreens.getText()));
         mealVM.insert(meal);
+        updateLikelihood(testFoodVariables.proteinList, testFoodVariables.proteinLikelihood, String.valueOf(tvProtein.getText()));
+        updateLikelihood(testFoodVariables.carbList, testFoodVariables.carbLikelihood, String.valueOf(tvCarbs.getText()));
+        updateLikelihood(testFoodVariables.greenList, testFoodVariables.greenLikelihood, String.valueOf(tvGreens.getText()));
         requireActivity().runOnUiThread(() -> btnSpin.setEnabled(true));
     };
 
@@ -171,7 +173,7 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
     @Override
     public void onJackpotMeal(boolean jackpotMeal) {
         if (jackpotMeal) {
-            handlerBonus.postDelayed(insertMealToDatabase, 0);
+            handlerBonus.postDelayed(insertMealToDatabaseAndUpdateLikelihoods, 0);
         } else {
             handlerNormal.postDelayed(() -> wheel2.start(), 0);
             handlerNormal.postDelayed(() -> {
@@ -179,8 +181,15 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
                 wheel3.start();
             }, DELAY);
             handlerNormal.postDelayed(() -> wheel3.stopWheel(), 2*DELAY);
-            handlerNormal.postDelayed(insertMealToDatabase, 2*DELAY + 500);
+            handlerNormal.postDelayed(insertMealToDatabaseAndUpdateLikelihoods, 2*DELAY + 500);
         }
+    }
 
+    private void updateLikelihood(List<String> foods, List<Double> likelihoods, String food) {
+        int position = foods.indexOf(food);
+        if (position != -1) {
+            likelihoods.set(position, likelihoods.get(position) - 0.5);
+            if (likelihoods.get(position) <= 0) likelihoods.set(position, 0.05);
+        }
     }
 }

@@ -7,18 +7,6 @@ import java.util.List;
 import java.util.Random;
 
 public class Wheel extends Thread {
-    /*private final List<String> proteinList = Arrays.asList("Fish", "Minced meat");
-    private final List<String> carbList = Arrays.asList("Pasta", "Rice", "Potatoes");
-    private final List<String> greenList = Arrays.asList("Cucumber", "Paprika", "Green peas");
-
-    public Meal returnRandomMeal() {
-        Random rand = new Random();
-        String protein = proteinList.get(rand.nextInt(proteinList.size()));
-        String carb = carbList.get(rand.nextInt(carbList.size()));
-        String green = greenList.get(rand.nextInt(greenList.size()));
-
-        return new Meal(protein, carb, green);
-    } */
 
     private Random rand = new Random();
 
@@ -46,10 +34,11 @@ public class Wheel extends Thread {
     }
 
     private ArrayList<Double> prepareLikelihoodArray(List<Double> likelihoodList) {
-        ArrayList<Double> cumulativeLikelihood = (ArrayList<Double>) populateCumulativeLikelihood(likelihoodList);
-        Log.i("Wheel", cumulativeLikelihood.toString());
-        normalize(cumulativeLikelihood);
-        Log.i("Wheel", cumulativeLikelihood.toString());
+        Log.i("Wheel", "Likelihoods " + likelihoodList);
+        ArrayList<Double> normalizedLikelihood = normalize(likelihoodList);
+        Log.i("Wheel", "Normalized Likelihoods " + normalizedLikelihood);
+        ArrayList<Double> cumulativeLikelihood = (ArrayList<Double>) populateCumulativeLikelihood(normalizedLikelihood);
+        Log.i("Wheel", "Cumulative likelihoods " + cumulativeLikelihood);
         return cumulativeLikelihood;
     }
 
@@ -75,20 +64,22 @@ public class Wheel extends Thread {
         double value = 0;
         cumulativeLikelihood.add(value);
         for (int i = 1; i < likelihoodList.size(); i++) {
-            value = value + likelihoodList.get(i);
+            value = value + likelihoodList.get(i-1);
             cumulativeLikelihood.add(value);
         }
         return cumulativeLikelihood;
     }
 
-    private void normalize(ArrayList<Double> list) {
+    private ArrayList<Double> normalize(List<Double> list) {
+        ArrayList<Double> normalizedList = new ArrayList<>();
         // normalization step
         double sum = likelihoodList.stream().mapToDouble(Double::doubleValue).sum();
         //TODO: figure out a way to have a stream instead
         //cumulativeLikelihood = cumulativeLikelihood.stream().mapToDouble(Double::doubleValue).forEachOrdered(a->a/sum);
         for (int i = 0; i < list.size(); i++) {
-            list.set(i, list.get(i)/sum);
+            normalizedList.add(list.get(i)/sum);
         }
+        return normalizedList;
     }
 
     @Override
