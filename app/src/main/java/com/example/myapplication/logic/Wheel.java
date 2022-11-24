@@ -2,10 +2,7 @@ package com.example.myapplication.logic;
 
 import android.util.Log;
 
-import com.example.myapplication.model.Meal;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -36,6 +33,7 @@ public class Wheel extends Thread {
     private boolean isStarted;
     private List<String> list;
     private List<Double> likelihoodList;
+    private ArrayList<Double> cumulativeLikelihood;
 
     public Wheel(WheelListener wheelListener, long frameDuration, List<String> list, List<Double> likelihoodList) {
         this.wheelListener = wheelListener;
@@ -44,13 +42,21 @@ public class Wheel extends Thread {
         this.likelihoodList = likelihoodList;
         currentIndex = 0;
         isStarted = true;
+        cumulativeLikelihood = prepareLikelihoodArray(likelihoodList);
     }
 
-    public void next(List<String> list, List<Double> likelihoodList) {
+    private ArrayList<Double> prepareLikelihoodArray(List<Double> likelihoodList) {
         ArrayList<Double> cumulativeLikelihood = (ArrayList<Double>) populateCumulativeLikelihood(likelihoodList);
+        Log.i("Wheel", cumulativeLikelihood.toString());
+        normalize(cumulativeLikelihood);
+        Log.i("Wheel", cumulativeLikelihood.toString());
+        return cumulativeLikelihood;
+    }
+
+    public void next(List<String> list) {
 
         double number = rand.nextDouble();
-        Log.i("Wheel", "random number " + number);
+        //Log.i("Wheel", "random number " + number);
         int index = -1;
         for (int i = 0; i < list.size()-1; i++) {
             if (number <= cumulativeLikelihood.get(1)) index = 0;
@@ -60,7 +66,7 @@ public class Wheel extends Thread {
             }
             else if (number > cumulativeLikelihood.get(i+1)) index = i+1;
         }
-        Log.i("Wheel", "index " + index);
+        //Log.i("Wheel", "index " + index);
         currentIndex = index;
     }
 
@@ -75,6 +81,16 @@ public class Wheel extends Thread {
         return cumulativeLikelihood;
     }
 
+    private void normalize(ArrayList<Double> list) {
+        // normalization step
+        double sum = likelihoodList.stream().mapToDouble(Double::doubleValue).sum();
+        //TODO: figure out a way to have a stream instead
+        //cumulativeLikelihood = cumulativeLikelihood.stream().mapToDouble(Double::doubleValue).forEachOrdered(a->a/sum);
+        for (int i = 0; i < list.size(); i++) {
+            list.set(i, list.get(i)/sum);
+        }
+    }
+
     @Override
     public void run() {
 
@@ -85,7 +101,7 @@ public class Wheel extends Thread {
                 e.printStackTrace();
             }
 
-            next(list, likelihoodList);
+            next(list);
 
             if (wheelListener != null) {
                 wheelListener.newString(list.get(currentIndex));
