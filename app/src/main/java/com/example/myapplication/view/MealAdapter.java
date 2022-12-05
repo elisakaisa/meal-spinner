@@ -11,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.model.Meal;
-import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 
 public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder> {
 
-    private ArrayList<Meal> mMeal;
+    private final ArrayList<Meal> mMeal;
+    private final DeleteMealInterface deleteMealInterface;
 
     @NonNull
     @Override
@@ -42,7 +42,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         }
 
         holder.btn_delete.setOnClickListener(view -> {
-
+            deleteMealInterface.onDeleteMeal(mMeal.get(position));
         });
     }
 
@@ -51,9 +51,12 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         return mMeal.size();
     }
 
-    public MealAdapter(ArrayList<Meal> meal) { mMeal = meal; }
+    public MealAdapter(ArrayList<Meal> meal, DeleteMealInterface deleteMealInterface) {
+        mMeal = meal;
+        this.deleteMealInterface = deleteMealInterface;
+    }
 
-    public class MealViewHolder extends RecyclerView.ViewHolder {
+    public static class MealViewHolder extends RecyclerView.ViewHolder {
 
         public TextView protein, carbs, greens;
         public ImageButton btn_delete;

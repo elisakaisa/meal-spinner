@@ -13,8 +13,8 @@ import java.util.List;
 
 public class MealViewModel extends AndroidViewModel {
 
-    private MealRepository mRepository;
-    private LiveData<List<Meal>> meals;
+    private final MealRepository mRepository;
+    private final LiveData<List<Meal>> meals;
 
     public MealViewModel(@NonNull Application application) {
         super(application);
@@ -29,5 +29,7 @@ public class MealViewModel extends AndroidViewModel {
     public void insert(Meal meal) { mRepository.insert(meal); }
 
     public void deleteAll() { mRepository.deleteAll(); }
+
+    public void deleteMeal(Meal meal) { mRepository.deleteMeal(meal); }
 
 }

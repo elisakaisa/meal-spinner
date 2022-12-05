@@ -5,6 +5,7 @@ import android.app.AsyncNotedAppOp;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
+import androidx.loader.content.AsyncTaskLoader;
 
 import com.example.myapplication.database.MealDao;
 import com.example.myapplication.database.MealDatabase;
@@ -33,5 +34,9 @@ public class MealRepository {
 
     public void deleteAll() {
         AsyncTask.execute(() -> mMealDao.deleteAll());
+    }
+
+    public void deleteMeal(Meal meal) {
+        AsyncTask.execute(() -> mMealDao.deleteMeal(meal));
     }
 }

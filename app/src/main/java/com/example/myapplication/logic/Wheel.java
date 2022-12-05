@@ -8,20 +8,19 @@ import java.util.Random;
 
 public class Wheel extends Thread {
 
-    private Random rand = new Random();
+    private final Random rand = new Random();
 
     public interface WheelListener {
         void newString(String s);
     }
 
-    private WheelListener wheelListener;
+    private final WheelListener wheelListener;
     public int currentIndex;
-    private long frameDuration;
-    private long startIn;
+    private final long frameDuration;
     private boolean isStarted;
-    private List<String> list;
-    private List<Double> likelihoodList;
-    private ArrayList<Double> cumulativeLikelihood;
+    private final List<String> list;
+    private final List<Double> likelihoodList;
+    private final ArrayList<Double> cumulativeLikelihood;
 
     public Wheel(WheelListener wheelListener, long frameDuration, List<String> list, List<Double> likelihoodList) {
         this.wheelListener = wheelListener;

@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import com.example.myapplication.database.TestFood;
 import com.example.myapplication.logic.JackpotMealListener;
 import com.example.myapplication.logic.Wheel;
 import com.example.myapplication.model.Meal;
+import com.example.myapplication.view.DeleteMealInterface;
 import com.example.myapplication.view.MealAdapter;
 import com.example.myapplication.viewModel.MealViewModel;
 import com.google.android.material.button.MaterialButton;
@@ -27,14 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class FragmentSpinner extends Fragment implements JackpotMealListener {
+public class FragmentSpinner extends Fragment implements JackpotMealListener, DeleteMealInterface {
 
     public FragmentSpinner() {
         // Required empty public constructor
     }
 
     private Wheel wheel1, wheel2, wheel3;
-    private MaterialButton btnSpin, btnReset;
+    private MaterialButton btnSpin;
     private Handler handler, handlerNormal, handlerBonus;
     private RecyclerView recyclerView;
     private MealViewModel mealVM;
@@ -42,12 +42,12 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
     /*--------- VARIABLES -----------*/
     private final int DELAY = 2000;
     private final int FRAME_DURATION = 100;
-    private final int MAX_MEALS = 10;
+    private final int MAX_MEALS = 5;
 
     private TestFood testFoodVariables;
 
     /*---------- HOOKS -----------*/
-    MaterialTextView tvProtein, tvCarbs, tvGreens;
+    private MaterialTextView tvProtein, tvCarbs, tvGreens;
 
     public static FragmentSpinner newInstance() {
         return new FragmentSpinner();
@@ -71,9 +71,11 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
         tvGreens = view.findViewById(R.id.tv_spinner_greens);
         btnSpin = view.findViewById(R.id.btn_spin);
         recyclerView = view.findViewById(R.id.recycler_view);
-        btnReset = view.findViewById(R.id.btn_reset);
+        MaterialButton btnReset = view.findViewById(R.id.btn_reset);
         ImageButton btnSettings = view.findViewById(R.id.img_btn_settings);
+        btnSettings.setVisibility(View.INVISIBLE); //TODO: remove once actually fixed UI
 
+        /*---------------- Meal Lists ----------------------*/
         testFoodVariables = new TestFood();
 
         /*---------------- HANDLERS ----------------------*/
@@ -91,7 +93,7 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
 
         mealVM.getMeals().observe(requireActivity(), meals -> {
             fillRecyclerView(meals);
-            setButtonEnabled(meals.size());
+            btnSpin.setEnabled(meals.size() < MAX_MEALS);
         });
         
         return view;
@@ -106,19 +108,9 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
     }
 
     private void fillRecyclerView(List<Meal> meals) {
-        MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) meals);
+        MealAdapter mealAdapter = new MealAdapter((ArrayList<Meal>) meals, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(mealAdapter);
-    }
-
-    private void setButtonEnabled(int listLength) {
-        if (listLength < MAX_MEALS) {
-            btnReset.setEnabled(false);
-            btnSpin.setEnabled(true);
-        } else {
-            btnReset.setEnabled(true);
-            btnSpin.setEnabled(false);
-        }
     }
 
     private void spinner() {
@@ -191,5 +183,10 @@ public class FragmentSpinner extends Fragment implements JackpotMealListener {
             likelihoods.set(position, likelihoods.get(position) - 0.5);
             if (likelihoods.get(position) <= 0) likelihoods.set(position, 0.05);
         }
+    }
+
+    @Override
+    public void onDeleteMeal(Meal meal) {
+        mealVM.deleteMeal(meal);
     }
 }
